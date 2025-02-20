@@ -4,6 +4,7 @@ Created on Mon Feb 17 18:02:18 2025
 
 @author: Stefania Alvarezghjghj
 """
+#hgfhfhgfhgfg
 
 import pandas as pd
 import matplotlib.pyplot as plt

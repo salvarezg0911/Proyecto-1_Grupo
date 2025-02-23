@@ -37,70 +37,8 @@ for i in conteo_category:
     else:
         h+=1   
 
-
 #-----------------------------
-#    Amenities (opcion 1)
-#-----------------------------
-
-
-#Derminar el nuemero de amanities
-amenities = [i for i in df['amenities'] if False == pd.isna(i)]
-conteo_amenities = []
-
-for i in amenities:
-    conteo_amenities.append(len(i.split(',')))
-
-#Histograma
-plt.figure(figsize=(9, 6))
-bins = np.arange(1, 20.5, 1)
-plt.hist(conteo_amenities, bins=bins, edgecolor='black', color="#4C72B0", alpha=0.85, rwidth=1)
-plt.xlabel('Número de comodidades', fontsize=14, fontweight='bold', color="#333333")
-plt.ylabel('Frecuencia', fontsize=14, fontweight='bold', color="#333333")
-plt.title('Distribución de las comodidades', fontsize=16, fontweight='bold', color="#222222")
-plt.xticks(np.arange(1, 20, 1), fontsize=12) 
-plt.yticks(fontsize=12)
-plt.show()
-
-#Estadisticas descriptivas
-print("Media: ", st.mean(conteo_amenities))
-print("Mediana: ", st.median(conteo_amenities))
-print("Moda: ", st.mode(conteo_amenities))
-
-print("Desviacion estandar: ", st.stdev(conteo_amenities))
-print("Varianza: ", st.variance(conteo_amenities))
-
-#Cantidad de elementos vacios         
-print(df["amenities"].isnull().sum())
-
-#BoxPlot
-plt.figure(figsize=(7, 5))
-sns.set(style="white") 
-sns.boxplot(y=conteo_amenities, width=0.4, color="#4C72B0", 
-            boxprops={'edgecolor': 'black', 'linewidth': 1.5},  
-            medianprops={'color': 'red', 'linewidth': 2},  
-            whiskerprops={'linewidth': 1.5},  
-            capprops={'linewidth': 1.5},  
-            flierprops={'marker': 'o', 'color': 'red', 'alpha': 0.6})  
-
-plt.ylabel('Número de comodidades', fontsize=12, fontweight='bold', color="#333333")
-plt.title('Distribución de comodidades sin Valores Atípicos', fontsize=14, fontweight='bold', color="#222222")
-plt.legend(fontsize=12, loc="upper right")
-plt.show()
-
-#Diagrama de dispersion con precio
-plt.figure(figsize=(8, 6))
-plt.scatter(conteo_amenities, df['bedrooms'], alpha=0.6, color="#4C72B0", linewidth=0.5)
-
-plt.xlabel('Número de Baños', fontsize=14, fontweight='bold', color="#333333")
-plt.ylabel('Número de Cuartos', fontsize=14, fontweight='bold', color="#333333")
-plt.title('Relación entre Cuartos y Baños', fontsize=16, fontweight='bold', color="#222222")
-plt.xticks(fontsize=12)
-plt.yticks(fontsize=12)
-plt.show()
-
-
-#-----------------------------
-#    Amenities (opcion 2)
+#    Amenities
 #-----------------------------
 amenities_cat = df['amenities'].str.split(',').explode().str.strip().drop_duplicates().tolist()
 amenities_dic = {}
@@ -125,24 +63,6 @@ plt.xticks( rotation=45,ha='right',fontsize=10)
 plt.yticks(fontsize=12)
 plt.tight_layout()
 plt.show()
-
-#Diagrama de dispersion con precios
-
-conteo_amenities = []
-
-for i in amenities:
-    conteo_amenities.append(len(i.split(',')))
-
-plt.figure(figsize=(8, 6))
-plt.scatter(df['square_feet'], df['bedrooms'], alpha=0.6, color="#4C72B0", linewidth=0.5)
-
-plt.xlabel('Precio', fontsize=14, fontweight='bold', color="#333333")
-plt.ylabel('Número de Cuartos', fontsize=14, fontweight='bold', color="#333333")
-plt.title('Relación entre Tamaño y Precio', fontsize=16, fontweight='bold', color="#222222")
-plt.xticks(fontsize=12)
-plt.yticks(fontsize=12)
-plt.show()
-
     
 #-----------------------------
 #    Bathrooms 

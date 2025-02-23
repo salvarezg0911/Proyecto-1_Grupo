@@ -158,27 +158,9 @@ plt.yticks(fontsize=12)
 plt.show()
 
 #-----------------------------
-#   Has_photo
-#-----------------------------
-
-#Diagrama de dispersion con cuartos
-plt.figure(figsize=(8, 6))
-plt.scatter(df['has_photo'], df['price'], alpha=0.6, color="#4C72B0", linewidth=0.5)
-
-plt.xlabel('Foto del apartamento', fontsize=14, fontweight='bold', color="#333333")
-plt.ylabel('Precio', fontsize=14, fontweight='bold', color="#333333")
-plt.title('Relación entre la foto de apartamento y los precios', fontsize=16, fontweight='bold', color="#222222")
-plt.xticks(fontsize=12)
-plt.yticks(fontsize=12)
-plt.show()
-
-#-----------------------------
 #   Pets
 #-----------------------------
 pets = df['pets_allowed']
-
-
-        
 print(pets.isnull().sum())
 
 #-----------------------------
@@ -193,43 +175,6 @@ plt.xlabel('Precio', fontsize=14, fontweight='bold', color="#333333")
 plt.ylabel('Frecuencia', fontsize=14, fontweight='bold', color="#333333")
 plt.title('Distribución de los precios', fontsize=16, fontweight='bold', color="#222222")
 plt.xticks(np.arange(0, 10000, 1000), fontsize=12) 
-plt.yticks(fontsize=12)
-plt.show()
-
-#BoxPlot
-plt.figure(figsize=(7, 5))  
-sns.set(style="white")  
-sns.boxplot(y=df['price'], width=0.4, color="#4C72B0", 
-            boxprops={'edgecolor': 'black', 'linewidth': 1.5},  
-            medianprops={'color': 'red', 'linewidth': 2},  
-            whiskerprops={'linewidth': 1.5},  
-            capprops={'linewidth': 1.5},  
-            flierprops={'marker': 'o', 'color': 'red', 'alpha': 0.6}) 
-
-plt.ylabel('Número de Precios', fontsize=12, fontweight='bold', color="#333333")
-plt.title('Distribución de Precios con Valores Atípicos', fontsize=14, fontweight='bold', color="#222222")
-plt.legend(fontsize=12, loc="upper right")
-plt.show()
-
-#Diagrama de dispersion con metros cuadrados 
-plt.figure(figsize=(8, 6))
-plt.scatter(df['price'], df['square_feet'], alpha=0.6, color="#4C72B0", linewidth=0.5)
-
-plt.xlabel('Precio', fontsize=14, fontweight='bold', color="#333333")
-plt.ylabel('Metros Cuadrados', fontsize=14, fontweight='bold', color="#333333")
-plt.title('Relación entre Metros Cuadrados y Precio', fontsize=16, fontweight='bold', color="#222222")
-plt.xticks(fontsize=12)
-plt.yticks(fontsize=12)
-plt.show()
-
-#Diagrama de dispersion con cuartos
-plt.figure(figsize=(8, 6))
-plt.scatter(df['bedrooms'],df['price'], alpha=0.6, color="#4C72B0", linewidth=0.5)
-
-plt.xlabel('Precio', fontsize=14, fontweight='bold', color="#333333")
-plt.ylabel('Número de Cuartos', fontsize=14, fontweight='bold', color="#333333")
-plt.title('Relación entre Cuartos y Precio', fontsize=16, fontweight='bold', color="#222222")
-plt.xticks(fontsize=12)
 plt.yticks(fontsize=12)
 plt.show()
 
@@ -256,43 +201,6 @@ plt.xlabel('Número de los pies cuadrados', fontsize=14, fontweight='bold', colo
 plt.ylabel('Frecuencia', fontsize=14, fontweight='bold', color="#333333")
 plt.title('Distribución del tamaño', fontsize=16, fontweight='bold', color="#222222")
 plt.xticks(np.arange(0, 5000, 1000), fontsize=12) 
-plt.yticks(fontsize=12)
-plt.show()
-
-#BoxPlot
-plt.figure(figsize=(7, 5))  
-sns.set(style="white")  
-sns.boxplot(y=df['square_feet'], width=0.4, color="#4C72B0", 
-            boxprops={'edgecolor': 'black', 'linewidth': 1.5},  
-            medianprops={'color': 'red', 'linewidth': 2},  
-            whiskerprops={'linewidth': 1.5},  
-            capprops={'linewidth': 1.5},  
-            flierprops={'marker': 'o', 'color': 'red', 'alpha': 0.6}) 
-
-plt.ylabel('Pies cuadradoss', fontsize=12, fontweight='bold', color="#333333")
-plt.title('Distribución del tamaño con Valores Atípicos', fontsize=14, fontweight='bold', color="#222222")
-plt.legend(fontsize=12, loc="upper right")
-plt.show()
-
-#Diagrama de dispersion con metros cuadrados 
-plt.figure(figsize=(8, 6))
-plt.scatter(df['square_feet'],df['price'], alpha=0.6, color="#4C72B0", linewidth=0.5)
-
-plt.xlabel('Precio', fontsize=14, fontweight='bold', color="#333333")
-plt.ylabel('Metros Cuadrados', fontsize=14, fontweight='bold', color="#333333")
-plt.title('Relación entre Tamaño y Precio', fontsize=16, fontweight='bold', color="#222222")
-plt.xticks(fontsize=12)
-plt.yticks(fontsize=12)
-plt.show()
-
-#Diagrama de dispersion con cuartos
-plt.figure(figsize=(8, 6))
-plt.scatter(df['square_feet'], df['bedrooms'], alpha=0.6, color="#4C72B0", linewidth=0.5)
-
-plt.xlabel('Precio', fontsize=14, fontweight='bold', color="#333333")
-plt.ylabel('Número de Cuartos', fontsize=14, fontweight='bold', color="#333333")
-plt.title('Relación entre Tamaño y Precio', fontsize=16, fontweight='bold', color="#222222")
-plt.xticks(fontsize=12)
 plt.yticks(fontsize=12)
 plt.show()
 

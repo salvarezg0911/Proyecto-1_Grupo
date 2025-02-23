@@ -13,6 +13,21 @@ import joblib
 file_path = "Datos limpiados1.xlsx"  # Asegúrate de que la ruta sea correcta
 df = pd.read_excel(file_path, sheet_name="Sheet1")
 
+#Agregar region
+# 📌 Crear una nueva columna de regiones
+df["region"] = df["state"].map({
+    "CA": "West", "NV": "West", "WA": "West", "OR": "West", "AZ": "West", "ID": "West",
+    "MT": "West", "WY": "West", "UT": "West", "CO": "West", "AK": "West", "HI": "West",
+    "TX": "South", "FL": "South", "GA": "South", "NC": "South", "TN": "South",
+    "SC": "South", "AL": "South", "MS": "South", "KY": "South", "LA": "South",
+    "AR": "South", "OK": "South", "WV": "South", "DC": "South", "VA": "South",
+    "NY": "East", "NJ": "East", "PA": "East", "MA": "East", "MD": "East",
+    "CT": "East", "RI": "East", "DE": "East", "NH": "East", "VT": "East", "ME": "East",
+    "IL": "Midwest", "OH": "Midwest", "MI": "Midwest", "IN": "Midwest", "WI": "Midwest",
+    "MN": "Midwest", "IA": "Midwest", "MO": "Midwest", "KS": "Midwest", "NE": "Midwest",
+    "ND": "Midwest", "SD": "Midwest"
+})
+
 # Filtrar valores atípicos del tamaño del apartamento
 df = df[df["square_feet"] < df["square_feet"].quantile(0.99)]
 
@@ -78,13 +93,13 @@ best_rf_model.fit(X_train, y_train)
 #Predicciones
 y_pred_rf = best_rf_model.predict(X_test)
 
-# 📌 Evaluación del modelo
+#Evaluación del modelo
 accuracy_rf = accuracy_score(y_test, y_pred_rf)
 print(f"Accuracy del modelo Random Forest en test: {accuracy_rf:.4f}")
 print(f"Accuracy Promedio en Cross-Validation (CV=10): {cv_scores.mean():.4f}")
 print(f"Desviación Estándar en CV: {cv_scores.std():.4f}")
 
-# 📌 Reporte de clasificación
+#Reporte de clasificación
 print("\nReporte de clasificación:")
 print(classification_report(y_test, y_pred_rf, target_names=label_encoder.classes_))
 

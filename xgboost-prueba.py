@@ -14,22 +14,6 @@ from sklearn.preprocessing import LabelEncoder
 file_path = "Datos limpiados1.xlsx"
 df = pd.read_excel(file_path, sheet_name="Sheet1")
 
-# Crear una nueva variable de precio por metro cuadrado
-df["price_per_sqft"] = df["price"] / df["square_feet"]
-
-# Crear una nueva columna de regiones
-df["region"] = df["state"].map({
-    "CA": "West", "NV": "West", "WA": "West", "OR": "West", "AZ": "West", "ID": "West",
-    "MT": "West", "WY": "West", "UT": "West", "CO": "West", "AK": "West", "HI": "West",
-    "TX": "South", "FL": "South", "GA": "South", "NC": "South", "TN": "South",
-    "SC": "South", "AL": "South", "MS": "South", "KY": "South", "LA": "South",
-    "AR": "South", "OK": "South", "WV": "South", "DC": "South", "VA": "South",
-    "NY": "East", "NJ": "East", "PA": "East", "MA": "East", "MD": "East",
-    "CT": "East", "RI": "East", "DE": "East", "NH": "East", "VT": "East", "ME": "East",
-    "IL": "Midwest", "OH": "Midwest", "MI": "Midwest", "IN": "Midwest", "WI": "Midwest",
-    "MN": "Midwest", "IA": "Midwest", "MO": "Midwest", "KS": "Midwest", "NE": "Midwest",
-    "ND": "Midwest", "SD": "Midwest"})
-
 # Eliminar el 1% más alto de los precios y mestros cuadrados
 num_filas = df.shape[0]
 print(f"El DataFrame tiene {num_filas} filas.")

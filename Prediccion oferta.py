@@ -4,7 +4,7 @@ import joblib
 file_path = "Datos limpiados1.xlsx"  # Asegúrate de que la ruta sea correcta
 df = pd.read_excel(file_path, sheet_name="Sheet1")
 
-# 📌 Crear una nueva columna de regiones
+#Crear una nueva columna de regiones
 df["region"] = df["state"].map({
     "CA": "West", "NV": "West", "WA": "West", "OR": "West", "AZ": "West", "ID": "West",
     "MT": "West", "WY": "West", "UT": "West", "CO": "West", "AK": "West", "HI": "West",
@@ -18,16 +18,16 @@ df["region"] = df["state"].map({
     "ND": "Midwest", "SD": "Midwest"
 })
 
-# 📌 Definir categorías de tamaño del apartamento (Pequeño, Mediano, Grande)
+#Definir categorías de tamaño del apartamento (Pequeño, Mediano, Grande)
 df["size_category"] = pd.cut(df["square_feet"], bins=[0, 700, 1200, 2455], labels=["Pequeño", "Mediano", "Grande"], include_lowest=True)
 
-# 📌 Cargar el modelo y el codificador de etiquetas
+#Cargar el modelo y el codificador de etiquetas
 best_rf_model = joblib.load("modelo_random_forest.pkl")
 label_encoder = joblib.load("label_encoder.pkl")
 columnas_entrenamiento = best_rf_model.feature_names_in_
 print(columnas_entrenamiento)
 
-# 📌 Definir un nuevo apartamento para predecir
+#Definir un nuevo apartamento para predecir
 nuevo_apartamento = pd.DataFrame({
     "bedrooms": [2],
     "bathrooms": [1],
@@ -37,7 +37,7 @@ nuevo_apartamento = pd.DataFrame({
     "region_West": [1]
 })
 
-# 📌 Hacer la predicción
+#Hacer la predicción
 prediction = best_rf_model.predict(nuevo_apartamento)
 predicted_category = label_encoder.inverse_transform(prediction)[0]
 

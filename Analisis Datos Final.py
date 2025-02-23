@@ -105,27 +105,6 @@ plt.xticks(fontsize=12)
 plt.yticks(fontsize=12)
 plt.show()
 
-#Diagrama de dispersion con cuartos
-plt.figure(figsize=(8, 6))
-plt.scatter(df['bathrooms'], df['bedrooms'], alpha=0.6, color="#4C72B0", linewidth=0.5)
-
-plt.xlabel('Número de Baños', fontsize=14, fontweight='bold', color="#333333")
-plt.ylabel('Número de Cuartos', fontsize=14, fontweight='bold', color="#333333")
-plt.title('Relación entre Cuartos y Baños', fontsize=16, fontweight='bold', color="#222222")
-plt.xticks(fontsize=12)
-plt.yticks(fontsize=12)
-plt.show()
-
-#Estadisticas descriptivas
-bathrooms = [i for i in df['bathrooms'] if False == pd.isna(i)]
-print("Media: ", st.mean(bathrooms))
-print("Mediana: ", st.median(bathrooms))
-print("Moda: ", st.mode(bathrooms))
-
-print("Desviacion estandar: ", st.stdev(bathrooms))
-print("Varianza: ", st.variance(bathrooms))
-print(df['bathrooms'].isnull().sum())
-
 #-----------------------------
 #    Bedrooms
 #-----------------------------
@@ -177,17 +156,6 @@ plt.title('Relación entre Cuartos y Baños', fontsize=16, fontweight='bold', co
 plt.xticks(fontsize=12)
 plt.yticks(fontsize=12)
 plt.show()
-
-#Estadisticas descriptivas
-bedrooms = [i for i in df['bedrooms'] if False == pd.isna(i)]
-print("Media: ", st.mean(bedrooms))
-print("Mediana: ", st.median(bedrooms))
-print("Moda: ", st.mode(bedrooms))
-
-print("Desviacion estandar: ", st.stdev(bedrooms))
-print("Varianza: ", st.variance(bedrooms))
-print(df['bedrooms'].isnull().sum())
-
 
 #-----------------------------
 #   Has_photo

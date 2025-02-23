@@ -58,13 +58,6 @@ target = "price"
 # Crear una copia del DataFrame original
 df_model = df[features + [target]].copy()
 
-#Eliminar outliers del modelo
-#df_model = df_model[df_model["time"] < df_model["time"].quantile(0.99)]
-#df_model = df_model[df_model["time"] > df_model["time"].quantile(0.01)]
-#df_model = df_model[df_model["price"] < df_model["price"].quantile(0.98)]
-#df_model = df_model[df_model["square_feet"] < df_model["square_feet"].quantile(0.99)]
-#df_model = df_model[df_model["square_feet"] > df_model["square_feet"].quantile(0.01)]
-
 #Revisar que la base tenga al menos 9000 datos
 num_filas = df_model.shape[0]
 print(f"El DataFrame tiene {num_filas} filas.")
@@ -144,7 +137,7 @@ plt.grid(True)
 # Mostrar gráfico
 plt.show()
 
-# 📌 Guardar el modelo y el LabelEncoder
+# Guardar el modelo y el LabelEncoder
 #joblib.dump(np.mean(df_model["price_per_sqft"]), "promedio.pkl")
 joblib.dump(grid_search.best_estimator_, "xgboost1.pkl")
 joblib.dump(y, "respuesta.pkl")

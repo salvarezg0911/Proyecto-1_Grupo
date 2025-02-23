@@ -249,9 +249,3 @@ plt.xticks( rotation=45,ha='right',fontsize=10)
 plt.yticks(fontsize=12)
 plt.tight_layout()
 plt.show()
-
-#Mapa latitudes y longitudes 
-import folium
-
-m = folium.Map(location=[df["latitude"].mean(), df["longitude"].mean()], zoom_start=6)
-m

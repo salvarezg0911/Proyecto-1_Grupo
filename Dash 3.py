@@ -252,7 +252,7 @@ def update_feature_importance(_):
     
     # Supongamos que ya tienes un diccionario de importancia de variables
     feature_importance = {
-        "Estado_aNJ":	0.085009,
+        "Estado_NJ":	0.085009,
         "Estado_MA":	0.081014,
         "Estado_WA":	0.065425,
         "Estado_DC":	0.060995,

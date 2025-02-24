@@ -21,10 +21,10 @@ server = app.server
 # Cargar Datos
 try:
     df = pd.read_excel("Datos limpiados1.xlsx")
-    df["Precio M²"] = df["price"] / df["square_feet"]
+    df["Precio pie²"] = df["price"] / df["square_feet"]
     df = df[df["square_feet"] < df["square_feet"].quantile(0.9)]
     df = df[df["price"] < df["price"].quantile(0.9)]
-    df = df[df["Precio M²"] < df["Precio M²"].quantile(0.85)]
+    df = df[df["Precio pie²"] < df["Precio pie²"].quantile(0.85)]
     
     df["region"] = df["state"].map({
     "CA": "West", "NV": "West", "WA": "West", "OR": "West", "AZ": "West", "ID": "West",
@@ -51,8 +51,8 @@ label_encoder = joblib.load("label_encoder.pkl")
 best_rf_precio = joblib.load("xgboost1.pkl")
 
 # Calcular rentabilidad del alquiler
-if not df.empty and "price" in df.columns and "Precio M²" in df.columns:
-    df["rental_yield"] = (df["Precio M²"] * 12) / df["price"] * 100
+if not df.empty and "price" in df.columns and "Precio pie²" in df.columns:
+    df["rental_yield"] = (df["Precio pie²"] * 12) / df["price"] * 100
 
 # Función para predecir el precio
 def predict_price(state, square_feet, pool, dishwasher, parking, refrigerator, pets_allowed, bathrooms):
@@ -104,7 +104,7 @@ app.layout = html.Div([
     html.H1("Análisis de Mercado Inmobiliario", style={'textAlign': 'center', 'color': 'purple'}),
     
     html.H3("Zonas más Rentables para Invertir", style={'textAlign': 'left', 'color': 'rebeccapurple'}),
-    dcc.Graph(id='map-graph', figure=px.scatter_map(df, lat="latitude", lon="longitude", color="Precio M²", zoom=3, title="Precio de Alquiler por M²", range_color=[df["Precio M²"].min(), df["Precio M²"].max()])),
+    dcc.Graph(id='map-graph', figure=px.scatter_map(df, lat="latitude", lon="longitude", color="Precio pie²", zoom=3, title="Precio de Alquiler por M²", range_color=[df["Precio pie²"].min(), df["Precio pie²"].max()])),
 
     html.H3("Predicción de Clasificación de Oferta", style={'textAlign': 'left', 'color': 'rebeccapurple'}),
     html.Label("Número de Habitaciones:", style={'textAlign': 'left', 'color': 'gray'}),
@@ -149,6 +149,7 @@ app.layout = html.Div([
     html.H3("Factores que más Impactan en el Precio", style={'textAlign': 'left', 'color': 'rebeccapurple'}),
     dcc.Graph(id='correlation-matrix'),
     dcc.Graph(id='scatter-plots'),
+    dcc.Graph(id='feature-importance-chart'),
     dcc.Input(id='update-trigger', value='', type='text', style={'display': 'none'}),
     html.Div(id='feature-importance-output', style={'marginTop': 20, 'fontSize': 22, 'fontWeight': 'bold', 'color': 'indigo', 'textAlign': 'center'}),
 
@@ -225,7 +226,7 @@ def update_correlation_and_scatter(_):
         "Pool": "Piscina",
         "Dishwasher":"Lavaplatos",
         "Parking":"Parqueadero",
-        "Precio M²":"Precio M²",
+        "Precio pie²":"Precio Pie²",
         "rental_yield":"Rentabilidad Inversion"
     }
 
@@ -239,6 +240,86 @@ def update_correlation_and_scatter(_):
     scatter_fig = px.scatter_matrix(df, dimensions=["price", "bedrooms", "bathrooms", "square_feet"], labels={"price":"Precio (USD)", "bedrooms":"Habitaciones", "bathrooms":"Baños", "square_feet":"Metros Cuadrados"},color="price", title="Relación entre Precio y Factores")
     
     return fig_corr, scatter_fig
+
+@app.callback(
+    Output('feature-importance-chart', 'figure'),
+    Input('update-trigger', 'value')
+)
+def update_feature_importance(_):
+    # Verificar que haya datos suficientes
+    if df.empty or len(df.columns) < 2:
+        return px.pie(title="No hay datos disponibles")
+    
+    # Supongamos que ya tienes un diccionario de importancia de variables
+    feature_importance = {
+        "Estado_aNJ":	0.085009,
+        "Estado_MA":	0.081014,
+        "Estado_WA":	0.065425,
+        "Estado_DC":	0.060995,
+        "Estado_MD":	0.031941,
+        "Estado_IA":	0.025478,
+        "Estado_ND":	0.019512,
+        "Estado_OH":	0.017621,
+        "Estado_MO":	0.01747,
+        "Estado_IN":	0.016987,
+        "Estado_NC":	0.015308,
+        "Estado_OK":	0.014285,
+        "Estado_SD":	0.013646,
+        "Estado_NE":	0.013236,
+        "Estado_IL":	0.012856,
+        "Estado_OR":	0.012781,
+        "Estado_MN":	0.012595,
+        "Estado_AR":	0.012486,
+        "Estado_NY":	0.011995,
+        "bathrooms":0.01193,
+        "Estado_VA":	0.00875,
+        "square_feet":	0.008692,
+        "Estado_KY":	0.008344,
+        "Estado_LA":	0.007736,
+        "Estado_TN":	0.007724,
+        "Estado_MI":	0.007569,
+        "Estado_CO":	0.006993,
+        "Estado_TX":	0.006904,
+        "Estado_PA":	0.00675,
+        "Estado_HI":	0.006467,
+        "Estado_WI":	0.006007,
+        "Estado_KS":	0.005692,
+        "Estado_NH":	0.005655,
+        "Refrigerator":	0.005148,
+        "Estado_GA":	0.004918,
+        "Estado_CT":	0.004778,
+        "Estado_AL":	0.004655,
+        "Estado_RI":	0.00458,
+        "pets_allowed_Dogs":	0.004084,
+        "Parking":	0.004029,
+        "time":	0.004008,
+        "Dishwasher":	0.00392,
+        "Estado_NV":	0.00387,
+        "pets_allowed_Cats,Dogs":	0.003868,
+        "Estado_SC":	0.003538,
+        "Pool":	0.003288,
+        "Estado_FL":	0.00322,
+        "Estado_MS":	0.003009,
+        "Estado_ID":	0.00285,
+        "Estado_AZ":	0.002529,
+        "Estado_NM":	0.001956,
+        "Estado_UT":	0.001691,
+        "Estado_VT":	0.001343,
+        "Estado_MT":	0.000256,
+    }
+    
+    # Convertir a DataFrame
+    feature_df = pd.DataFrame(list(feature_importance.items()), columns=['Feature', 'Importance'])
+    
+    # Ordenar de mayor a menor y tomar el **top 10**
+    feature_df = feature_df.sort_values(by="Importance", ascending=False).head(10)
+    
+    # Crear Pie Chart
+    pie_chart = px.pie(feature_df, values='Importance', names='Feature',
+                       title="Top 10 Variables Más Importantes en la Predicción",
+                       color_discrete_sequence=px.colors.qualitative.Set3)
+    
+    return pie_chart
 
 @app.callback(
     [Output('city-price-boxplot', 'figure'),

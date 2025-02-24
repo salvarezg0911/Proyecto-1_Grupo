@@ -53,6 +53,10 @@ df_model = pd.get_dummies(df_model, columns=["pets_allowed"], drop_first=True)
 # Separar variables independientes (X) y dependiente (y)
 X = df_model.drop(columns=[target])
 y = df_model[target]
+print(df_model["price"].min())
+print(df_model["price"].mean())
+print(df_model["price"].max())
+
 
 # Dividir en entrenamiento y prueba (80% entrenamiento, 20% prueba)
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)

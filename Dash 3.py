@@ -218,7 +218,7 @@ def update_correlation_and_scatter(_):
         "price": "Precio (USD)",
         "bedrooms": "Habitaciones",
         "bathrooms": "Baños",
-        "square_feet": "Metros Cuadrados",
+        "square_feet": "Pies Cuadrados",
         "latitude":"Latitud",
         "longitude":"Longitud",
         "time":"Tiempo",
@@ -237,7 +237,7 @@ def update_correlation_and_scatter(_):
     fig_corr = px.imshow(correlation_matrix, title="Matriz de Correlación", color_continuous_scale='viridis',labels=dict(x="Parámetro", y="Parámetro", color="Correlación"),
         x=correlation_matrix.columns,y=correlation_matrix.columns)
     
-    scatter_fig = px.scatter_matrix(df, dimensions=["price", "bedrooms", "bathrooms", "square_feet"], labels={"price":"Precio (USD)", "bedrooms":"Habitaciones", "bathrooms":"Baños", "square_feet":"Metros Cuadrados"},color="price", title="Relación entre Precio y Factores")
+    scatter_fig = px.scatter_matrix(df, dimensions=["price", "bedrooms", "bathrooms", "square_feet"], labels={"price":"Precio (USD)", "bedrooms":"Habitaciones", "bathrooms":"Baños", "square_feet":"Pies Cuadrados"},color="price", title="Relación entre Precio y Factores")
     
     return fig_corr, scatter_fig
 

@@ -54,7 +54,7 @@ best_rf_precio = joblib.load("xgboost1.pkl")
 if not df.empty and "price" in df.columns and "Precio M²" in df.columns:
     df["rental_yield"] = (df["Precio M²"] * 12) / df["price"] * 100
 
-# **Función para predecir el precio**
+# Función para predecir el precio
 def predict_price(state, square_feet, pool, dishwasher, parking, refrigerator, pets_allowed, bathrooms):
     input_data = pd.DataFrame({
         "square_feet": [square_feet],
@@ -81,7 +81,7 @@ def predict_price(state, square_feet, pool, dishwasher, parking, refrigerator, p
 
     return best_rf_precio.predict(input_data)[0]
 
-# **Función para predecir la oferta**
+# Función para predecir la oferta
 def predict_rent(bedrooms, bathrooms, price_per_sqft, region):
     valid_regions = ['region_Midwest', 'region_South', 'region_West']
     region_encoded = {r: 0 for r in valid_regions}
@@ -97,7 +97,7 @@ def predict_rent(bedrooms, bathrooms, price_per_sqft, region):
     region_df = df[df["region"] == region]
     total_apartments_region = len(region_df)
     category_count_region = len(region_df[region_df["size_category"] == label_encoder.inverse_transform([best_rf_oferta.predict(input_data)[0]])[0]])
-    return f"🏡 Tamaño Predicho: {label_encoder.inverse_transform([best_rf_oferta.predict(input_data)[0]])[0]}, Oferta en la region {region}: {round(category_count_region/total_apartments_region,2)*100}%"
+    return f"Tamaño Estimado: {label_encoder.inverse_transform([best_rf_oferta.predict(input_data)[0]])[0]}, Oferta en la region {region}: {round(category_count_region/total_apartments_region*100,2)}%"
 
 # Layout
 app.layout = html.Div([
@@ -106,17 +106,16 @@ app.layout = html.Div([
     html.H3("Zonas más Rentables para Invertir", style={'textAlign': 'left', 'color': 'rebeccapurple'}),
     dcc.Graph(id='map-graph', figure=px.scatter_map(df, lat="latitude", lon="longitude", color="Precio M²", zoom=3, title="Precio de Alquiler por M²", range_color=[df["Precio M²"].min(), df["Precio M²"].max()])),
 
-    #
-    html.H3("Predicción de Clasificación de Oferta", style={'textAlign': 'left', 'color': 'gray'}),
-    html.Label("Número de Habitaciones:"),
+    html.H3("Predicción de Clasificación de Oferta", style={'textAlign': 'left', 'color': 'rebeccapurple'}),
+    html.Label("Número de Habitaciones:", style={'textAlign': 'left', 'color': 'gray'}),
     dcc.Input(id='bedrooms-input', type='number', value=1),
-    html.Label("Número de Baños:"),
+    html.Label("Número de Baños:", style={'textAlign': 'left', 'color': 'gray'}),
     dcc.Input(id='bathrooms-input', type='number', value=1),
-    html.Label("Precio por pies cuadrados:"),
+    html.Label("Precio por pies cuadrados:", style={'textAlign': 'left', 'color': 'gray'}),
     dcc.Input(id='price-per-sqft-input', type='number', value=50),
-    html.Label("Región:"),
+    html.Label("Región:", style={'textAlign': 'left', 'color': 'gray'}),
     dcc.Dropdown(id='region-dropdown', options=[{'label': i, 'value': i} for i in df["region"].dropna().unique()], value="West"),
-    html.Div(id='rent-prediction-output', style={'marginTop': 20, 'fontSize': 22, 'fontWeight': 'bold', 'color': 'blue', 'textAlign': 'center'}),
+    html.Div(id='rent-prediction-output', style={'marginTop': 20, 'fontSize': 22, 'fontWeight': 'bold', 'color': 'indigo', 'textAlign': 'center'}),
     
     html.H3("Análisis de Precios de Propiedades Similares", style={'textAlign': 'left', 'color': 'rebeccapurple'}),
     html.Label("Número de Habitaciones",style={'textAlign': 'left','color':'gray'}),
@@ -127,39 +126,39 @@ app.layout = html.Div([
     dcc.RangeSlider(id='price-range', min=df["price"].min(), max=df["price"].max(), step=150, value=[df["price"].min(), df["price"].max()]),
     dcc.Graph(id='histogram'),
     dcc.Graph(id='boxplot'),
-    #
-    html.H3("Predicción de Precio Optimo Alquiler", style={'textAlign': 'left', 'color': 'gray'}),
-    html.Label("Estado:"),
+    
+    html.H3("Predicción de Precio Optimo Alquiler", style={'textAlign': 'left', 'color': 'rebeccapurple'}),
+    html.Label("Estado:", style={'textAlign': 'left', 'color': 'gray'}),
     dcc.Dropdown(id='state-dropdown', options=[{'label': i, 'value': i} for i in df["state"].dropna().unique()], value="MD"),
-    html.Label("Área en pies cuadrados:"),
+    html.Label("Área en pies cuadrados:", style={'textAlign': 'left', 'color': 'gray'}),
     dcc.Input(id='square-feet-input', type='number', value=1),
-    html.Label("Piscina:"),
+    html.Label("Piscina:", style={'textAlign': 'left', 'color': 'gray'}),
     dcc.Dropdown(id='pool-dropdown', options=[{'label': 'Sí', 'value': 1}, {'label': 'No', 'value': 0}], value=0),
-    html.Label("Lavaplatos:"),
+    html.Label("Lavaplatos:", style={'textAlign': 'left', 'color': 'gray'}),
     dcc.Dropdown(id='dishwasher-dropdown', options=[{'label': 'Sí', 'value': 1}, {'label': 'No', 'value': 0}], value=0),
-    html.Label("Parqueadero:"),
+    html.Label("Parqueadero:", style={'textAlign': 'left', 'color': 'gray'}),
     dcc.Dropdown(id='parking-dropdown', options=[{'label': 'Sí', 'value': 1}, {'label': 'No', 'value': 0}], value=0),
-    html.Label("Refrigerador:"),
+    html.Label("Refrigerador:", style={'textAlign': 'left', 'color': 'gray'}),
     dcc.Dropdown(id='refrigerator-dropdown', options=[{'label': 'Sí', 'value': 1}, {'label': 'No', 'value': 0}], value=0),
-    html.Label("Mascotas Permitidas:"),
+    html.Label("Mascotas Permitidas:", style={'textAlign': 'left', 'color': 'gray'}),
     dcc.Dropdown(id='pets-dropdown', options=[{'label': 'Sí', 'value': 1}, {'label': 'No', 'value': 0}], value=0),
-    html.Label("Número de Baños:"),
+    html.Label("Número de Baños:", style={'textAlign': 'left', 'color': 'gray'}),
     dcc.Input(id='bathrooms-input-2', type='number', value=1),
-    html.Div(id='price-prediction-output', style={'marginTop': 20, 'fontSize': 22, 'fontWeight': 'bold', 'color': 'blue', 'textAlign': 'center'}),
+    html.Div(id='price-prediction-output', style={'marginTop': 20, 'fontSize': 22, 'fontWeight': 'bold', 'color': 'indigo', 'textAlign': 'center'}),
 
     html.H3("Factores que más Impactan en el Precio", style={'textAlign': 'left', 'color': 'rebeccapurple'}),
     dcc.Graph(id='correlation-matrix'),
     dcc.Graph(id='scatter-plots'),
     dcc.Input(id='update-trigger', value='', type='text', style={'display': 'none'}),
-    html.Div(id='feature-importance-output', style={'marginTop': 20, 'fontSize': 22, 'fontWeight': 'bold', 'color': 'darkblue', 'textAlign': 'center'}),
+    html.Div(id='feature-importance-output', style={'marginTop': 20, 'fontSize': 22, 'fontWeight': 'bold', 'color': 'indigo', 'textAlign': 'center'}),
 
-    html.H3("4. Comparación de Precios entre Ciudades", style={'textAlign': 'left', 'color': 'rebeccapurple'}),
+    html.H3("Comparación de Precios entre Ciudades", style={'textAlign': 'left', 'color': 'rebeccapurple'}),
     html.Label("Selecciona un Estado",style={'textAlign': 'left','color':'gray'}),
     dcc.Dropdown(id='state-dropdown-2', options=[{'label': i, 'value': i} for i in df["state"].dropna().unique()], value=None),
     dcc.Graph(id='city-price-boxplot'),
     dcc.Graph(id='city-price-histogram'),
 
-    html.H3("5. Rentabilidad de la Inversión en Vivienda", style={'textAlign': 'left', 'color': 'rebeccapurple'}),
+    html.H3("Rentabilidad de la Inversión en Vivienda", style={'textAlign': 'left', 'color': 'rebeccapurple'}),
     html.Label("Selecciona un Estado", style={'textAlign': 'left','color':'gray'}),
     dcc.Dropdown(id='state-yield-dropdown', options=[{'label': i, 'value': i} for i in df["state"].dropna().unique()], value=None),
     dcc.Graph(id='yield-bar-chart'),
@@ -168,7 +167,6 @@ app.layout = html.Div([
     ])
 
 # Callbacks
-# **Callbacks**
 @app.callback(
     Output('price-prediction-output', 'children'),
     [Input('state-dropdown', 'value'), Input('square-feet-input', 'value'), Input('pool-dropdown', 'value'),
@@ -184,8 +182,7 @@ def update_price_prediction(*args):
      Input('region-dropdown', 'value')]
 )
 def update_rent_prediction(*args):
-    return f"Clasificación estimada: {predict_rent(*args)}"
-
+    return f"Clasificación: {predict_rent(*args)}"
 
 @app.callback(
     [Output('histogram', 'figure'), Output('boxplot', 'figure')],
@@ -243,12 +240,6 @@ def update_correlation_and_scatter(_):
     
     return fig_corr, scatter_fig
 
-# Callback para calcular la importancia de variables en el precio
-@app.callback(
-    Output('feature-importance-output', 'children'),
-    Input('update-trigger', 'value')
-)
-
 @app.callback(
     [Output('city-price-boxplot', 'figure'),
      Output('city-price-histogram', 'figure')],
@@ -292,6 +283,8 @@ def update_yield_analysis(selected_state):
     heatmap_fig = px.density_map(filtered_df, lat="latitude", lon="longitude", z="rental_yield",
                              radius=10, title=f"Mapa de Rentabilidad del Alquiler en {selected_state}",
                              color_continuous_scale="plasma", labels={"rental_yield":"Rentabilidad (%)"}, zoom=3)
+ 
+
     return bar_fig, heatmap_fig
 
 

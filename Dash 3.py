@@ -8,6 +8,9 @@ from sklearn.linear_model import LinearRegression
 import seaborn as sns
 import matplotlib.pyplot as plt
 from statsmodels.tsa.holtwinters import ExponentialSmoothing
+import pandas as pd
+import joblib
+import time
 
 
 # Inicializar Dash
@@ -22,74 +25,100 @@ try:
     df = df[df["square_feet"] < df["square_feet"].quantile(0.9)]
     df = df[df["price"] < df["price"].quantile(0.9)]
     df = df[df["Precio M²"] < df["Precio M²"].quantile(0.85)]
+    
+    df["region"] = df["state"].map({
+    "CA": "West", "NV": "West", "WA": "West", "OR": "West", "AZ": "West", "ID": "West",
+    "MT": "West", "WY": "West", "UT": "West", "CO": "West", "AK": "West", "HI": "West",
+    "TX": "South", "FL": "South", "GA": "South", "NC": "South", "TN": "South",
+    "SC": "South", "AL": "South", "MS": "South", "KY": "South", "LA": "South",
+    "AR": "South", "OK": "South", "WV": "South", "DC": "South", "VA": "South",
+    "NY": "East", "NJ": "East", "PA": "East", "MA": "East", "MD": "East",
+    "CT": "East", "RI": "East", "DE": "East", "NH": "East", "VT": "East", "ME": "East",
+    "IL": "Midwest", "OH": "Midwest", "MI": "Midwest", "IN": "Midwest", "WI": "Midwest",
+    "MN": "Midwest", "IA": "Midwest", "MO": "Midwest", "KS": "Midwest", "NE": "Midwest",
+    "ND": "Midwest", "SD": "Midwest"})
+    df["size_category"] = pd.cut(df["square_feet"], bins=[0, 700, 1200, 2455], labels=["Pequeño", "Mediano", "Grande"], include_lowest=True)
 
 except FileNotFoundError:
     print("Error: Archivo 'Datos limpiados1.xlsx' no encontrado.")
     df = pd.DataFrame()
 
+#Cargar modelo oferta
+best_rf_oferta = joblib.load("modelo_random_forest.pkl")
+label_encoder = joblib.load("label_encoder.pkl")
+
+#Cargar modelo precio
+best_rf_precio = joblib.load("xgboost1.pkl")
+
 # Calcular rentabilidad del alquiler
 if not df.empty and "price" in df.columns and "Precio M²" in df.columns:
     df["rental_yield"] = (df["Precio M²"] * 12) / df["price"] * 100
 
-# Variables para los modelos
-features = ["cityname", "bedrooms", "bathrooms"]
-X_price = df[features].dropna()
-y_price = df.loc[X_price.index, "price"].dropna()
-X_rent = df[features].dropna()
-y_rent = df.loc[X_rent.index, "Precio M²"].dropna()
+# **Función para predecir el precio**
+def predict_price(state, square_feet, pool, dishwasher, parking, refrigerator, pets_allowed, bathrooms):
+    input_data = pd.DataFrame({
+        "square_feet": [square_feet],
+        "Pool": [pool],
+        "Dishwasher": [dishwasher],
+        "Parking": [parking],
+        "Refrigerator": [refrigerator],
+        "pets_allowed": [pets_allowed],
+        "bathrooms": [bathrooms],
+        "time": [int(time.time())]
+    })
 
-model_price, model_rent = None, None
-if not X_price.empty and len(X_price) == len(y_price):
-    model_price = LinearRegression()
-    X_encoded_price = pd.get_dummies(X_price, columns=["cityname"], drop_first=True)
-    model_price.fit(X_encoded_price, y_price)
+    # Codificar `state`
+    for s in best_rf_precio.feature_names_in_:
+        if s.startswith("state_"):
+            input_data[s] = 1 if s == f"state_{state}" else 0
 
-if not X_rent.empty and len(X_rent) == len(y_rent):
-    model_rent = LinearRegression()
-    X_encoded_rent = pd.get_dummies(X_rent, columns=["cityname"], drop_first=True)
-    model_rent.fit(X_encoded_rent, y_rent)
+    # Asegurar columnas correctas
+    missing_cols = set(best_rf_precio.feature_names_in_) - set(input_data.columns)
+    for col in missing_cols:
+        input_data[col] = 0
 
-# Filtrar datos válidos para series temporales
-if not df.empty and "date" in df.columns and "price" in df.columns and "cityname" in df.columns:
-    df_time_series = df.groupby(["date", "cityname"]).agg({"price": "mean"}).reset_index()
-else:
-    df_time_series = pd.DataFrame()
+    input_data = input_data[best_rf_precio.feature_names_in_]
 
-# Funciones de predicción
-def predict_price(city, bedrooms, bathrooms):
-    if model_price:
-        input_data = pd.DataFrame([[city, bedrooms, bathrooms]], columns=features)
-        input_encoded = pd.get_dummies(input_data, columns=["cityname"], drop_first=True)
-        input_encoded = input_encoded.reindex(columns=X_encoded_price.columns, fill_value=0)
-        return model_price.predict(input_encoded)[0]
-    return "Datos insuficientes"
+    return best_rf_precio.predict(input_data)[0]
 
-def predict_rent(city, bedrooms, bathrooms):
-    if model_rent:
-        input_data = pd.DataFrame([[city, bedrooms, bathrooms]], columns=features)
-        input_encoded = pd.get_dummies(input_data, columns=["cityname"], drop_first=True)
-        input_encoded = input_encoded.reindex(columns=X_encoded_rent.columns, fill_value=0)
-        return model_rent.predict(input_encoded)[0]
-    return "Datos insuficientes"
+# **Función para predecir la oferta**
+def predict_rent(bedrooms, bathrooms, price_per_sqft, region):
+    valid_regions = ['region_Midwest', 'region_South', 'region_West']
+    region_encoded = {r: 0 for r in valid_regions}
+    if region in valid_regions:
+        region_encoded[region] = 1
+
+    input_data = pd.DataFrame({
+        "bedrooms": [bedrooms],
+        "bathrooms": [bathrooms],
+        "price_per_sqft": [price_per_sqft],
+        **region_encoded
+    })
+    region_df = df[df["region"] == region]
+    total_apartments_region = len(region_df)
+    category_count_region = len(region_df[region_df["size_category"] == label_encoder.inverse_transform([best_rf_oferta.predict(input_data)[0]])[0]])
+    return f"🏡 Tamaño Predicho: {label_encoder.inverse_transform([best_rf_oferta.predict(input_data)[0]])[0]}, Oferta en la region {region}: {round(category_count_region/total_apartments_region,2)*100}%"
 
 # Layout
 app.layout = html.Div([
     html.H1("Análisis de Mercado Inmobiliario", style={'textAlign': 'center', 'color': 'purple'}),
     
-    html.H3("1. Zonas más Rentables para Invertir", style={'textAlign': 'left', 'color': 'rebeccapurple'}),
+    html.H3("Zonas más Rentables para Invertir", style={'textAlign': 'left', 'color': 'rebeccapurple'}),
     dcc.Graph(id='map-graph', figure=px.scatter_map(df, lat="latitude", lon="longitude", color="Precio M²", zoom=3, title="Precio de Alquiler por M²", range_color=[df["Precio M²"].min(), df["Precio M²"].max()])),
 
     #
-    html.H3("       Predicción de Rentabilidad", style={'textAlign': 'left','color':'gray'}),
-    html.Label("Ciudad", style={'textAlign': 'left', 'color': 'gray'}),
-    dcc.Dropdown(id='city-dropdown', options=[{'label': i, 'value': i} for i in df["cityname"].dropna().unique()], value=None),
-    html.Label("Número de Habitaciones", style={'textAlign': 'left', 'color': 'gray'}),
-    dcc.Dropdown(id='bed-dropdown', options=[{'label': i, 'value': i} for i in df["bedrooms"].dropna().unique()], value=None),
-    html.Label("Número de Baños", style={'textAlign': 'left', 'color': 'gray'}),
-    dcc.Dropdown(id='bath-dropdown', options=[{'label': i, 'value': i} for i in df["bathrooms"].dropna().unique()], value=None),
-    html.Div(id='rent-prediction-output', style={'marginTop': 20, 'fontSize': 22, 'fontWeight': 'bold', 'color': 'darkslateblue', 'textAlign': 'center'}),
+    html.H3("Predicción de Clasificación de Oferta", style={'textAlign': 'left', 'color': 'gray'}),
+    html.Label("Número de Habitaciones:"),
+    dcc.Input(id='bedrooms-input', type='number', value=1),
+    html.Label("Número de Baños:"),
+    dcc.Input(id='bathrooms-input', type='number', value=1),
+    html.Label("Precio por pies cuadrados:"),
+    dcc.Input(id='price-per-sqft-input', type='number', value=50),
+    html.Label("Región:"),
+    dcc.Dropdown(id='region-dropdown', options=[{'label': i, 'value': i} for i in df["region"].dropna().unique()], value="West"),
+    html.Div(id='rent-prediction-output', style={'marginTop': 20, 'fontSize': 22, 'fontWeight': 'bold', 'color': 'blue', 'textAlign': 'center'}),
     
-    html.H3("2. Análisis de Precios de Propiedades Similares", style={'textAlign': 'left', 'color': 'rebeccapurple'}),
+    html.H3("Análisis de Precios de Propiedades Similares", style={'textAlign': 'left', 'color': 'rebeccapurple'}),
     html.Label("Número de Habitaciones",style={'textAlign': 'left','color':'gray'}),
     dcc.Dropdown(id='bed-filter', options=[{'label': i, 'value': i} for i in df["bedrooms"].dropna().unique()], multi=True),
     html.Label("Número de Baños", style={'textAlign': 'left','color':'gray'}),
@@ -99,10 +128,26 @@ app.layout = html.Div([
     dcc.Graph(id='histogram'),
     dcc.Graph(id='boxplot'),
     #
-    html.H3("      Predicción de Precio Óptimo para Venta o Alquiler", style={'textAlign': 'left','color':'gray'}),
-    html.Div(id='price-prediction-output', style={'marginTop': 20, 'fontSize': 22, 'fontWeight': 'bold', 'color': 'darkslateblue', 'textAlign': 'center'}),
+    html.H3("Predicción de Precio Optimo Alquiler", style={'textAlign': 'left', 'color': 'gray'}),
+    html.Label("Estado:"),
+    dcc.Dropdown(id='state-dropdown', options=[{'label': i, 'value': i} for i in df["state"].dropna().unique()], value="MD"),
+    html.Label("Área en pies cuadrados:"),
+    dcc.Input(id='square-feet-input', type='number', value=1),
+    html.Label("Piscina:"),
+    dcc.Dropdown(id='pool-dropdown', options=[{'label': 'Sí', 'value': 1}, {'label': 'No', 'value': 0}], value=0),
+    html.Label("Lavaplatos:"),
+    dcc.Dropdown(id='dishwasher-dropdown', options=[{'label': 'Sí', 'value': 1}, {'label': 'No', 'value': 0}], value=0),
+    html.Label("Parqueadero:"),
+    dcc.Dropdown(id='parking-dropdown', options=[{'label': 'Sí', 'value': 1}, {'label': 'No', 'value': 0}], value=0),
+    html.Label("Refrigerador:"),
+    dcc.Dropdown(id='refrigerator-dropdown', options=[{'label': 'Sí', 'value': 1}, {'label': 'No', 'value': 0}], value=0),
+    html.Label("Mascotas Permitidas:"),
+    dcc.Dropdown(id='pets-dropdown', options=[{'label': 'Sí', 'value': 1}, {'label': 'No', 'value': 0}], value=0),
+    html.Label("Número de Baños:"),
+    dcc.Input(id='bathrooms-input-2', type='number', value=1),
+    html.Div(id='price-prediction-output', style={'marginTop': 20, 'fontSize': 22, 'fontWeight': 'bold', 'color': 'blue', 'textAlign': 'center'}),
 
-    html.H3("3. Factores que más Impactan en el Precio", style={'textAlign': 'left', 'color': 'rebeccapurple'}),
+    html.H3("Factores que más Impactan en el Precio", style={'textAlign': 'left', 'color': 'rebeccapurple'}),
     dcc.Graph(id='correlation-matrix'),
     dcc.Graph(id='scatter-plots'),
     dcc.Input(id='update-trigger', value='', type='text', style={'display': 'none'}),
@@ -110,7 +155,7 @@ app.layout = html.Div([
 
     html.H3("4. Comparación de Precios entre Ciudades", style={'textAlign': 'left', 'color': 'rebeccapurple'}),
     html.Label("Selecciona un Estado",style={'textAlign': 'left','color':'gray'}),
-    dcc.Dropdown(id='state-dropdown', options=[{'label': i, 'value': i} for i in df["state"].dropna().unique()], value=None),
+    dcc.Dropdown(id='state-dropdown-2', options=[{'label': i, 'value': i} for i in df["state"].dropna().unique()], value=None),
     dcc.Graph(id='city-price-boxplot'),
     dcc.Graph(id='city-price-histogram'),
 
@@ -123,25 +168,24 @@ app.layout = html.Div([
     ])
 
 # Callbacks
-@app.callback(
-    Output('rent-prediction-output', 'children'),
-    [Input('city-dropdown', 'value'), Input('bed-dropdown', 'value'), Input('bath-dropdown', 'value')]
-)
-def update_rent_prediction(city, bedrooms, bathrooms):
-    if city and bedrooms and bathrooms:
-        rent_prediction = predict_rent(city, bedrooms, bathrooms)
-        return f"Rentabilidad estimada por m²: ${rent_prediction:.2f}"
-    return "Seleccione todos los valores para obtener la predicción."
-
+# **Callbacks**
 @app.callback(
     Output('price-prediction-output', 'children'),
-    [Input('city-dropdown', 'value'), Input('bed-dropdown', 'value'), Input('bath-dropdown', 'value')]
+    [Input('state-dropdown', 'value'), Input('square-feet-input', 'value'), Input('pool-dropdown', 'value'),
+     Input('dishwasher-dropdown', 'value'), Input('parking-dropdown', 'value'), Input('refrigerator-dropdown', 'value'),
+     Input('pets-dropdown', 'value'), Input('bathrooms-input-2', 'value')]
 )
-def update_price_prediction(city, bedrooms, bathrooms):
-    if city and bedrooms and bathrooms:
-        price_prediction = predict_price(city, bedrooms, bathrooms)
-        return f"Precio estimado: ${price_prediction:.2f}"
-    return "Seleccione todos los valores para obtener la predicción."
+def update_price_prediction(*args):
+    return f"Precio estimado: ${predict_price(*args):.2f}"
+
+@app.callback(
+    Output('rent-prediction-output', 'children'),
+    [Input('bedrooms-input', 'value'), Input('bathrooms-input', 'value'), Input('price-per-sqft-input', 'value'), 
+     Input('region-dropdown', 'value')]
+)
+def update_rent_prediction(*args):
+    return f"Clasificación estimada: {predict_rent(*args)}"
+
 
 @app.callback(
     [Output('histogram', 'figure'), Output('boxplot', 'figure')],
@@ -204,17 +248,11 @@ def update_correlation_and_scatter(_):
     Output('feature-importance-output', 'children'),
     Input('update-trigger', 'value')
 )
-def update_feature_importance(_):
-    if model_price:
-        importance = pd.Series(model_price.coef_, index=X_encoded_price.columns).sort_values(ascending=False)
-        importance_text = "\n".join([f"{var}: {imp:.2f}" for var, imp in importance.items()])
-        #return f"Factores que más impactan en el precio:\n{importance_text}"
-    #return "No hay suficientes datos para calcular la importancia de las variables."
 
 @app.callback(
     [Output('city-price-boxplot', 'figure'),
      Output('city-price-histogram', 'figure')],
-    Input('state-dropdown', 'value')
+    Input('state-dropdown-2', 'value')
 )
 def update_city_price_visuals(selected_state):
     if df.empty or 'state' not in df.columns or 'cityname' not in df.columns or 'price' not in df.columns:

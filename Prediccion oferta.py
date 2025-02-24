@@ -4,7 +4,7 @@ import joblib
 file_path = "Datos limpiados1.xlsx"  # Asegúrate de que la ruta sea correcta
 df = pd.read_excel(file_path, sheet_name="Sheet1")
 
-#Crear una nueva columna de regiones
+#Crear una nueva columna de regiones todas 0 es NM
 df["region"] = df["state"].map({
     "CA": "West", "NV": "West", "WA": "West", "OR": "West", "AZ": "West", "ID": "West",
     "MT": "West", "WY": "West", "UT": "West", "CO": "West", "AK": "West", "HI": "West",
@@ -45,5 +45,4 @@ predicted_category = label_encoder.inverse_transform(prediction)[0]
 region_df = df[df["region"] == "West"]
 total_apartments_region = len(region_df)
 category_count_region = len(region_df[region_df["size_category"] == predicted_category])
-
 print(f"🏡 Tamaño Predicho: {predicted_category}, Oferta en la region west: {round(category_count_region/total_apartments_region,2)*100}%")

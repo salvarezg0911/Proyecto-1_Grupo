@@ -1,7 +1,7 @@
 import pandas as pd
 import joblib
 
-file_path = "Datos limpiados1.xlsx"  # Asegúrate de que la ruta sea correcta
+file_path = "Ingenierıa de datos + Analisis de datos (Stefania)/Datos limpiados1.xlsx"  # Asegúrate de que la ruta sea correcta
 df = pd.read_excel(file_path, sheet_name="Sheet1")
 
 #Crear una nueva columna de regiones todas 0 es NM
@@ -22,8 +22,8 @@ df["region"] = df["state"].map({
 df["size_category"] = pd.cut(df["square_feet"], bins=[0, 700, 1200, 2455], labels=["Pequeño", "Mediano", "Grande"], include_lowest=True)
 
 #Cargar el modelo y el codificador de etiquetas
-best_rf_model = joblib.load("modelo_random_forest.pkl")
-label_encoder = joblib.load("label_encoder.pkl")
+best_rf_model = joblib.load("Ciencia de datos + Despliegue (Felipe)/modelo_random_forest.pkl")
+label_encoder = joblib.load("Ciencia de datos + Despliegue (Felipe)/label_encoder.pkl")
 columnas_entrenamiento = best_rf_model.feature_names_in_
 print(columnas_entrenamiento)
 

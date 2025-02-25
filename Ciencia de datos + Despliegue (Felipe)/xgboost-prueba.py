@@ -11,7 +11,7 @@ import joblib
 from sklearn.preprocessing import LabelEncoder
 
 # Cargar la base de datos
-file_path = "Datos limpiados1.xlsx"
+file_path = "Ingenierıa de datos + Analisis de datos (Stefania)/Datos limpiados1.xlsx"
 df = pd.read_excel(file_path, sheet_name="Sheet1")
 
 # Eliminar el 1% más alto de los precios y mestros cuadrados
@@ -127,5 +127,5 @@ plt.show()
 
 # Guardar el modelo y el LabelEncoder
 #joblib.dump(np.mean(df_model["price_per_sqft"]), "promedio.pkl")
-joblib.dump(grid_search.best_estimator_, "xgboost1.pkl")
-joblib.dump(y, "respuesta.pkl")
+joblib.dump(grid_search.best_estimator_, "Ciencia de datos + Despliegue (Felipe)/xgboost1.pkl")
+joblib.dump(y, "Ciencia de datos + Despliegue (Felipe)/respuesta.pkl")

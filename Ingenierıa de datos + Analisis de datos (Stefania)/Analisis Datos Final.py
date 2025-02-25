@@ -11,7 +11,7 @@ import numpy as np
 import statistics as st
 import seaborn as sns
 
-file_name = r"C:\Users\Stefania Alvarez\Documents\Universidad\2025-1\Analitica\Proyecto 1\Copia de Datos_Iniciales.xlsx"
+file_name = "Ingenierıa de datos + Analisis de datos (Stefania)/Datos Iniciales.xlsx"
 
 df = pd.read_excel(file_name)
 

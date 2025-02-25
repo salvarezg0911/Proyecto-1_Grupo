@@ -12,7 +12,7 @@ from geopy.geocoders import Nominatim
 from geopy.exc import GeocoderTimedOut
 
 #Importacion de datos
-archivo = "Datos Iniciales.xlsx"
+archivo = "Ingenierıa de datos + Analisis de datos (Stefania)/Datos Iniciales.xlsx"
 
 hoja = pd.read_excel(io = archivo)
 
@@ -172,4 +172,4 @@ hoja = hoja.drop(columns=["source"])
 #-----------------------------
 # Exportar al data frame
 #----------------------------- 
-hoja.to_excel("Datos limpiados1.xlsx", index=False)
+hoja.to_excel("Ingenierıa de datos + Analisis de datos (Stefania)/Datos limpiados1.xlsx", index=False)

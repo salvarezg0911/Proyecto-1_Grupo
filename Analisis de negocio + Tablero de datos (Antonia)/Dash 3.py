@@ -20,7 +20,7 @@ server = app.server
 
 # Cargar Datos
 try:
-    df = pd.read_excel("Datos limpiados1.xlsx")
+    df = pd.read_excel("Ingenierıa de datos + Analisis de datos (Stefania)/Datos limpiados1.xlsx")
     df["Precio pie²"] = df["price"] / df["square_feet"]
     df = df[df["square_feet"] < df["square_feet"].quantile(0.9)]
     df = df[df["price"] < df["price"].quantile(0.9)]
@@ -44,11 +44,11 @@ except FileNotFoundError:
     df = pd.DataFrame()
 
 #Cargar modelo oferta
-best_rf_oferta = joblib.load("modelo_random_forest.pkl")
-label_encoder = joblib.load("label_encoder.pkl")
+best_rf_oferta = joblib.load("Ciencia de datos + Despliegue (Felipe)/modelo_random_forest.pkl")
+label_encoder = joblib.load("Ciencia de datos + Despliegue (Felipe)/label_encoder.pkl")
 
 #Cargar modelo precio
-best_rf_precio = joblib.load("xgboost1.pkl")
+best_rf_precio = joblib.load("Ciencia de datos + Despliegue (Felipe)/xgboost1.pkl")
 
 # Calcular rentabilidad del alquiler
 if not df.empty and "price" in df.columns and "Precio pie²" in df.columns:

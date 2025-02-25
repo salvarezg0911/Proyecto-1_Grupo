@@ -10,7 +10,7 @@ from sklearn.metrics import accuracy_score, classification_report, confusion_mat
 import joblib
 
 #Cargar la base de datos desde el archivo Excel
-file_path = "Datos limpiados1.xlsx"  # Asegúrate de que la ruta sea correcta
+file_path = "Ingenierıa de datos + Analisis de datos (Stefania)/Datos limpiados1.xlsx"  # Asegúrate de que la ruta sea correcta
 df = pd.read_excel(file_path, sheet_name="Sheet1")
 
 #Agregar region
@@ -114,5 +114,5 @@ plt.title("Matriz de Confusión - Clasificación de Tamaño de Apartamentos")
 plt.show()
 
 #Guardar el modelo y el LabelEncoder
-joblib.dump(grid_search.best_estimator_, "modelo_random_forest.pkl")
-joblib.dump(label_encoder, "label_encoder.pkl")
+joblib.dump(grid_search.best_estimator_, "Ciencia de datos + Despliegue (Felipe)/modelo_random_forest.pkl")
+joblib.dump(label_encoder, "Ciencia de datos + Despliegue (Felipe)/label_encoder.pkl")

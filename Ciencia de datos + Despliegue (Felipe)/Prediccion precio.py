@@ -2,8 +2,8 @@ import pandas as pd
 import joblib
 
 #Cargar el modelo y el codificador de etiquetas
-best_rf_model = joblib.load("xgboost1.pkl")
-label_encoder = joblib.load("respuesta.pkl")
+best_rf_model = joblib.load("Ciencia de datos + Despliegue (Felipe)/xgboost1.pkl")
+label_encoder = joblib.load("Ciencia de datos + Despliegue (Felipe)/respuesta.pkl")
 columnas_entrenamiento = best_rf_model.feature_names_in_
 print(columnas_entrenamiento)
 
